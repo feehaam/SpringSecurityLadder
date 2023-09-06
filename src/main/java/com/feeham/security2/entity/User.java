@@ -1,14 +1,9 @@
 package com.feeham.security2.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Component
@@ -19,8 +14,9 @@ public class User {
     private String email;
     private String password;
     private String fullName;
-    @Enumerated(EnumType.STRING)
-    private List<Role> roles;
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private Set<Authority> authorities;
     @Column(name = "account_active")
     private boolean isAccountNonExpired;
     @Column(name = "account_unlocked")
@@ -33,21 +29,21 @@ public class User {
     public User() {
 
     }
-    public User(String email, String password, String fullName, List<Role> roles) {
+    public User(String email, String password, String fullName, Set<Authority> roles) {
         this(email, password, fullName, roles, true, true, true, true);
     }
-    public User(String email, String password, String fullName, List<Role> roles, boolean isAccountNonExpired, boolean isAccountNonLocked, boolean isCredentialsNonExpired, boolean isEnabled) {
+    public User(String email, String password, String fullName, Set<Authority> roles, boolean isAccountNonExpired, boolean isAccountNonLocked, boolean isCredentialsNonExpired, boolean isEnabled) {
         this.email = email;
         this.password = password;
         this.fullName = fullName;
-        this.roles = roles;
+        this.authorities = roles;
         this.isAccountNonExpired = isAccountNonExpired;
         this.isAccountNonLocked = isAccountNonLocked;
         this.isCredentialsNonExpired = isCredentialsNonExpired;
         this.isEnabled = isEnabled;
     }
     public User(User user) {
-        this.roles = user.roles;
+        this.authorities = user.authorities;
         this.id = user.id;
         this.email = user.email;
         this.fullName = user.fullName;
@@ -90,14 +86,6 @@ public class User {
         this.fullName = fullName;
     }
 
-    public List<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
-    }
-
     public boolean isAccountNonExpired() {
         return isAccountNonExpired;
     }
@@ -108,6 +96,14 @@ public class User {
 
     public boolean isAccountNonLocked() {
         return isAccountNonLocked;
+    }
+
+    public Set<Authority> getAuthorities() {
+        return authorities;
+    }
+
+    public void setAuthorities(Set<Authority> authorities) {
+        this.authorities = authorities;
     }
 
     public void setAccountNonLocked(boolean accountNonLocked) {
@@ -121,7 +117,6 @@ public class User {
     public void setCredentialsNonExpired(boolean credentialsNonExpired) {
         isCredentialsNonExpired = credentialsNonExpired;
     }
-
     public boolean isEnabled() {
         return isEnabled;
     }

@@ -1,6 +1,6 @@
 package com.feeham.security2.utility;
 
-import com.feeham.security2.entity.Role;
+import com.feeham.security2.entity.Authority;
 import com.feeham.security2.entity.User;
 import com.feeham.security2.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,11 +37,15 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         if(!passwordEncoder.matches(password, user.getPassword())){
             throw new RuntimeException("Password " + password + " is wrong");
         }
+        return new UsernamePasswordAuthenticationToken(user, password, getAuthorities(user));
+    }
+
+    private List<GrantedAuthority> getAuthorities(User user){
         List<GrantedAuthority> authorities = new ArrayList<>();
-        if(user.getRoles() != null)
-            for(Role role : user.getRoles())
-                authorities.add(new SimpleGrantedAuthority(role.toString()));
-        return new UsernamePasswordAuthenticationToken(user, password, authorities);
+        if(user.getAuthorities()!= null)
+            for(Authority auth: user.getAuthorities())
+                authorities.add(new SimpleGrantedAuthority(auth.getName()));
+        return authorities;
     }
 
     @Override
